@@ -1,4 +1,3 @@
-
 <template>
   <div>
   </div>
@@ -6,7 +5,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { init } from './index'
-onMounted(init)
+onMounted(()=>{
+  console.log('mounted');
+  init()
+})
 
 </script>
 
