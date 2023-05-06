@@ -1,0 +1,3 @@
+用threeJs渲染页面的基本要素有 相机、场景、 渲染器。 
+
+场景Scene、相机Camera、渲染器Renderer
