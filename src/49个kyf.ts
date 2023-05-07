@@ -135,7 +135,6 @@ export const init = () => {
 
 export const render = () => {
   console.log('aaaa')
-  renderer.setPixelRatio(window.devicePixelRatio)
   renderer.render(scene, camera)
   // mesh.rotateY(0.01) //每次绕y轴旋转0.01弧度
   // requestAnimationFrame(render) //请求再次执行渲染函数render，渲染下一帧
