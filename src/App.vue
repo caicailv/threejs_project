@@ -1,23 +1,23 @@
 <template>
-
-  <div class="webgl"></div>
+  
+  <!-- <div class="webgl"></div> -->
 </template>
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { init,  } from './index';
+// import { onMounted, onUpdated } from 'vue';
+// import { init } from './index';
+// import  './index';
+import  './index2';
+// onMounted(() => { 
+//   init() 
+// })
 
-onMounted(() => {
-  init()
-})
 
 </script>
 
 <style scoped>
-
-
-.webgl {
+/* .webgl {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-}
+} */
 </style>
