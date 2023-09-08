@@ -1,27 +1,13 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-// import { reactive } from 'vue'
-
-// export const formData = reactive({
-//   camera: {
-//     position: {
-//       x: 200,
-//       y: 200,
-//       z: 200,
-//     },
-//     rotation: {
-//       x: 0,
-//       y: 0,
-//       z: 0,
-//     },
-//   },
-// })
+// @ts-ignore
+import { OrbitControls } from 'three/addons/controls/OrbitControls'
+import { createCube } from './cube'
 // 创建场景
 const scene = new THREE.Scene()
 const renderer = new THREE.WebGL1Renderer()
 
 const camera = new THREE.PerspectiveCamera(
-  30,
+  100,
   window.innerWidth / window.innerHeight,
   1,
   30000
@@ -31,81 +17,76 @@ const camera = new THREE.PerspectiveCamera(
 
 // camera.lookAt(0, 0, 0); //坐标原点
 // 创建几何体(长方体)
-const geometry = new THREE.BoxGeometry(100, 100, 100)
-
-// 创建材质对象
-//MeshBasicMaterial不受光照影响
-// const material = new THREE.MeshBasicMaterial({
-//   color: 0xff0000, //0xff0000设置材质颜色为红色
-//   transparent: true, //开启透明
-//   opacity: 0.2,
-// })
-//MeshLambertMaterial受光照影响
-
-const textures = [
-  new THREE.TextureLoader().load('/public/1.jpg'),
-  new THREE.TextureLoader().load('/public/2.jpg'),
-  new THREE.TextureLoader().load('/public/3.jpg'),
-  new THREE.TextureLoader().load('/public/4.jpg'),
-  new THREE.TextureLoader().load('/public/5.jpg'),
-  new THREE.TextureLoader().load('/public/6.jpg'),
-]
-
-textures.sort(() => Math.random() - 0.5)
-
-const materials = textures.map((texture) => {
-  return new THREE.MeshBasicMaterial({ map: texture })
-})
-function randomIntFromInterval(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1) + min)
+const boxConfig = {
+  x: 0,
+  y: 0,
+  z: 0,
+  num: 3,
+  len: 120,
+  size: 100,
+  //右、左、上、下、前、后
+  colors: ['#ff6b02', '#ffffff', '#dd422f', '#fdcd02', '#3d81f7', '#019d53'],
 }
+const geometry = new THREE.BoxGeometry(
+  boxConfig.size,
+  boxConfig.size,
+  boxConfig.size
+)
 
-// const geometry = new THREE.BoxGeometry(100, 100, 100);
-//材质对象Material
-
-for (let i = 0; i < 7; i++) {
-  for (let j = 0; j < 7; j++) {
+//MeshLambertMaterial受光照影响
+const materials = boxConfig.colors.map((color) => {
+  return new THREE.MeshBasicMaterial({
+    color: color,
+    transparent: true,
+    opacity: 0,
+  })
+})
+for (let i = 0; i < boxConfig.num; i++) {
+  for (let j = 0; j < boxConfig.num; j++) {
     const meshFaces = []
 
     for (let i = 0; i < 6; i++) {
-      const mesh = new THREE.Mesh(
-        geometry,
-        materials[randomIntFromInterval(0, 5)]
-      )
+      const mesh = new THREE.Mesh(geometry, materials[i])
       meshFaces.push(mesh)
     }
-
-    meshFaces[0].position.set(i * 200 + 0, 0.5, j * 200 + 0) // 前面
-    meshFaces[1].position.set(i * 200 + 0, -0.5, j * 200 + 0) // 后面
-    meshFaces[2].position.set(i * 200 + 0, 0, j * 200 + 0.5) // 上面
-    meshFaces[3].position.set(i * 200 + 0, 0, j * 200 + -0.5) // 下面
-    meshFaces[4].position.set(i * 200 + 0.5, 0, j * 200 + 0) // 右面
-    meshFaces[5].position.set(i * 200 + -0.5, 0, j * 200 + 0) // 左面
+    const len = boxConfig.len
+    meshFaces[0].position.set(i * len + 0, 0.5, j * len + 0) // 前面
+    meshFaces[1].position.set(i * len + 0, -0.5, j * len + 0) // 后面
+    meshFaces[2].position.set(i * len + 0, 0, j * len + 0.5) // 上面
+    meshFaces[3].position.set(i * len + 0, 0, j * len + -0.5) // 下面
+    meshFaces[4].position.set(i * len + 0.5, 0, j * len + 0) // 右面
+    meshFaces[5].position.set(i * len + -0.5, 0, j * len + 0) // 左面
 
     meshFaces.forEach((mesh) => {
+      // 为每个块创建边缘线
+      const edges = new THREE.EdgesGeometry(geometry)
+      // 创建边缘线的材质
+      const lineMaterial = new THREE.LineBasicMaterial({ color: 'red' })
+      const edgesMesh = new THREE.LineSegments(edges, lineMaterial)
+      // edgesMesh.position.set(100, 100, 100)
+      scene.add(edgesMesh)
+
       scene.add(mesh)
     })
-    console.log('meshFaces', meshFaces)
     // const mesh = new THREE.Mesh(geometry, material) //网格模型对象Mesh
     // 在XOZ平面上分布
   }
 }
-camera.lookAt(0, 0, 0) //指向mesh对应的位置
 
 // 创建坐标系
 const axesHelper = new THREE.AxesHelper(10000)
 scene.add(axesHelper)
 //点光源位置
-renderer.render(scene, camera)
+// renderer.render(scene, camera)
 
 const controls = new OrbitControls(camera, renderer.domElement)
 // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
-controls.addEventListener('change', function () {
-  renderer.render(scene, camera) //执行渲染操作
+controls.addEventListener('change', () => {
+  // renderer.render(scene, camera) //执行渲染操作
+  render()
 }) //监听鼠标、键盘事件
-// const pointLightHelper = new THREE.PointLightHelper(pointLight, 10)
-// scene.add(pointLightHelper)
-export const init = () => {
+
+const init = () => {
   // 平行光
   const directionalLight = new THREE.DirectionalLight('#000', 1)
   // 设置光源的方向：通过光源position属性和目标指向对象的position属性计算
@@ -119,24 +100,29 @@ export const init = () => {
     0xff0000
   )
   scene.add(dirLightHelper)
-  const ambient = new THREE.AmbientLight(0xffffff, 1)
-  scene.add(ambient)
-  camera.position.set(200, 200, 200)
-  camera.rotation.set(200, 200, 200)
-
+  camera.position.set(500, 500, 500) // 设置摄像机位置
+  // camera.rotation.set(200, 200, 200) // 旋转镜头
+  camera.lookAt(0, 0, 0) //指向mesh对应的位置
   renderer.setSize(window.innerWidth, window.innerHeight)
   renderer.setClearColor('pink')
-  let root = document.querySelector('.webgl') as HTMLElement
-  root.innerHTML = ''
-  root.appendChild(renderer.domElement)
-  renderer.render(scene, camera)
   render()
-}
 
+  document.body.innerHTML = '<div id="app"></div>'
+  document.body.appendChild(renderer.domElement)
+  // renderer.render(scene, camera)
+}
 export const render = () => {
-  console.log('aaaa')
-  renderer.setPixelRatio(window.devicePixelRatio)
+  // meshFaces.forEach((mesh) => {
+  //   scene.add(mesh)
+  // })
   renderer.render(scene, camera)
   // mesh.rotateY(0.01) //每次绕y轴旋转0.01弧度
   // requestAnimationFrame(render) //请求再次执行渲染函数render，渲染下一帧
 }
+/* 
+
+
+
+
+*/
+init()

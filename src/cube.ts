@@ -1,54 +1,57 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-
-//开始
-
-function initThree() {
-  //...
+type positionType = {
+  x: number
+  y: number
+  z: number
 }
-let scene: THREE.Scene
-let camera: THREE.PerspectiveCamera
-let light: THREE.AmbientLight
-let cubes
-
-function initCamera() {
-  camera = new THREE.PerspectiveCamera(
-    50,
-    window.innerWidth / window.innerHeight,
-    1,
-    2000
+const boxConfig = {
+  x: 0,
+  y: 0,
+  z: 0,
+  num: 3,
+  len: 120,
+  size: 100,
+  //右、左、上、下、前、后
+  colors: ['#ff6b02', '#ffffff', '#dd422f', '#fdcd02', '#3d81f7', '#019d53'],
+}
+const createBox = ({ x, y, z }: positionType) => {
+  console.log(x, y, z)
+  const geometry = new THREE.BoxGeometry(
+    boxConfig.size,
+    boxConfig.size,
+    boxConfig.size
   )
-  //...
-}
-function initScene() {
-  scene = new THREE.Scene()
-  scene.add(light)
-  //...
-}
-function initLight() {
-  // light = new THREE.DirectionalLight('#000', 1)
-  // light.position.set(1000, 100, 50)
-  light = new THREE.AmbientLight(0xffffff, 1)
-  //...
-}
-function initObject() {
-  //...
-}
-function render() {
-  const root = document.querySelector('.webgl') as HTMLElement
-  const renderer = new THREE.WebGL1Renderer()
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  root.innerHTML = ''
-  root.appendChild(renderer.domElement)
-  renderer.render(scene, camera)
-  //...
-}
+  const materials = boxConfig.colors.map((color) => {
+    return new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0,
+    })
+  })
 
-export function threeStart() {
-  initThree()
-  initCamera()
-  initScene()
-  initLight()
-  initObject()
-  render()
+  const meshFaces = []
+  const edges = new THREE.EdgesGeometry(geometry)
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 'red' })
+  const edgesMesh = new THREE.LineSegments(edges, lineMaterial)
+
+  for (let i = 0; i < 6; i++) {
+    const mesh = new THREE.Mesh(geometry, materials[i])
+    meshFaces.push(mesh)
+  }
+  // const len = boxConfig.len*i
+  meshFaces[0].position.set(x + 0, 0.5, y + 0) // 前面
+  meshFaces[1].position.set(x + 0, -0.5, y + 0) // 后面
+  meshFaces[2].position.set(x + 0, 0, y + 0.5) // 上面
+  meshFaces[3].position.set(x + 0, 0, y + -0.5) // 下面
+  meshFaces[4].position.set(x + 0.5, 0, y + 0) // 右面
+  meshFaces[5].position.set(x + -0.5, 0, y + 0) // 左面
+
+  meshFaces.forEach((mesh) => {
+    // 为每个块创建边缘线
+    // 创建边缘线的材质
+  })
+}
+export const createCube = () => {
+
+  
 }
