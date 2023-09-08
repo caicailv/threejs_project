@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + Vue + TS</title>
+  </head>
+  <body>
+    <!-- webgl -->
+    <!-- <div id="app"></div> -->
+    <!-- <script type="module" src="/src/main.ts"></script> -->
+
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <script>
+      const ctx = document.querySelector('#canvas')
+      console.log('ctx',ctx);
+      const gl = ctx.getContext('webgl')
+      gl.clearColor(1,0.2,0.2 ,1)
+      console.log('gl.COLOR_BUFFER_BIT',gl.COLOR_BUFFER_BIT );
+      gl.clear(gl.COLOR_BUFFER_BIT)
+ 
+    </script>
+  </body>
+</html>
