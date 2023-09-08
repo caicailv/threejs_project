@@ -5,6 +5,7 @@
 <script setup lang="ts">
 import  './index';
 
+
 </script>
 
 <style scoped>
@@ -14,4 +15,3 @@ import  './index';
   overflow: hidden;
 } */
 </style>
-./createCube
