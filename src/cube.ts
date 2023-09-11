@@ -60,5 +60,7 @@ export const createCube = (scene: THREE.Scene) => {
       }
     }
   }
+  // group 设置中心点
+  
   scene.add(group)
 }
