@@ -9,4 +9,11 @@ export default defineConfig({
     }
   },
   plugins: [vue()],
+  build: {
+    rollupOptions: {
+      input: {
+        // input: 'webgl.html',
+      },
+    },
+  },
 })
