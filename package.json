@@ -12,6 +12,7 @@
     "@types/three": "^0.150.2",
     "dat.gui": "^0.7.9",
     "three": "^0.151.3",
+    "three.meshline": "^1.4.0",
     "vue": "^3.2.47"
   },
   "devDependencies": {
