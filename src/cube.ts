@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-
 type positionType = {
   x: number
   y: number
@@ -13,7 +12,6 @@ const boxConfig = {
   len: 100,
   size: 100,
   opacity: 1,
-  //右、左、上、下、前、后
   colors: ['#ff6b02', '#ffffff', '#dd422f', '#fdcd02', '#3d81f7', '#019d53'],
 }
 
@@ -43,24 +41,29 @@ const createBox = ({ x, y, z }: positionType) => {
   edgesMesh.position.set(x, y, z)
   return { mesh, edgesMesh }
 }
-
 export const createCube = (scene: THREE.Scene) => {
-  const group = new THREE.Group()
+  const cube = createItemCube(boxConfig)
+  cube.position.set(-100, -100, -100);
+  cube.position.set(0, 0, 0);
+  scene.add(cube)
+  // console.log('cube',cube);
+  return cube
+}
 
-  for (let i = 0; i < boxConfig.num; i++) {
-    for (let j = 0; j < boxConfig.num; j++) {
-      for (let t = 0; t < boxConfig.num; t++) {
+const createItemCube = (config: typeof boxConfig) => {
+  const group = new THREE.Group()
+  for (let i = 0; i < config.num; i++) {
+    for (let j = 0; j < config.num; j++) {
+      for (let t = 0; t < config.num; t++) {
         const { mesh, edgesMesh } = createBox({
-          x: i * boxConfig.len,
-          y: j * boxConfig.len,
-          z: t * boxConfig.len,
+          x: i * config.len + config.x,
+          y: j * config.len + config.y,
+          z: t * config.len + config.z,
         })
         group.add(mesh)
         group.add(edgesMesh)
       }
     }
   }
-  // group 设置中心点
-  
-  scene.add(group)
+  return group
 }
