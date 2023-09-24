@@ -1,77 +1,102 @@
 import * as THREE from 'three'
 
-let isDragging = false
-let startPosition = { x: 0, y: 0 }
-
+let isRotating = false // 魔方是否在转动
+let startPoint = null as THREE.Vector3 | null
 const raycaster = new THREE.Raycaster()
-
-const intersect = null // 表示转动魔方时手指触碰的小方块；
-const normalize = null // 表示转动魔方时手指触碰的平面的法向量；
+let intersect = null // 表示转动魔方时手指触碰的小方块；
+let normalize = null // 表示转动魔方时手指触碰的平面的法向量；
 const targetRubik = null // 表示转动魔方时手指触碰的魔方；
 const anotherRubik = null // 表示转动魔方时手指没触碰的魔方；
-
-export const listenerMove = (camera: THREE.PerspectiveCamera) => {
-  document.body.addEventListener('mousedown', (event) => {
-    isDragging = true
-    startPosition = { x: event.clientX, y: event.clientY }
-  })
-  document.body.addEventListener('mousemove', (event) => {
-    if (!isDragging) return
-
-    const mouse = new THREE.Vector2()
-    mouse.x = event.clientX
-    mouse.y = event.clientY
-    raycaster.setFromCamera(mouse, camera)
-    //   mouse.y = -(touch.clientY / this.height) * 2 + 1;
-    //   mouse.y = -(touch.clientY / this.height) * 2 + 1;
-    // 
-  })
-
-  document.body.addEventListener('mouseup', () => {
-    isDragging = false
-    startPosition = { x: 0, y: 0 }
-  })
-}
-
+let camera: THREE.PerspectiveCamera | null = null
+let scene: THREE.Scene | null = null
 /* 
-getIntersects(event) {
-  var touch = event.touches[0];
-  var mouse = new THREE.Vector2();
-  mouse.x = (touch.clientX / this.width) * 2 - 1;
-  mouse.y = -(touch.clientY / this.height) * 2 + 1;
-  
-  this.raycaster.setFromCamera(mouse, this.camera);
-  
-  var rubikTypeName;
-  if (this.touchLine.screenRect.top > touch.clientY) {
-      this.targetRubik = this.frontRubik;
-      this.anotherRubik = this.endRubik;
-      rubikTypeName = this.frontViewName;
-  } else if (this.touchLine.screenRect.top + this.touchLine.screenRect.height < touch.clientY) {
-      this.targetRubik = this.endRubik;
-      this.anotherRubik = this.frontRubik;
-      rubikTypeName = this.endViewName;
-  }
-  var targetIntersect;
-  for (var i = 0; i < this.scene.children.length; i++) {
-      if (this.scene.children[i].childType == rubikTypeName) {
-          targetIntersect = this.scene.children[i];
-          break;
-      }
-  }
-  
-  if (targetIntersect) {
-      var intersects = this.raycaster.intersectObjects(targetIntersect.children);
-      if (intersects.length >= 2) {
-          if (intersects[0].object.cubeType === 'coverCube') {
-              this.intersect = intersects[1];
-              this.normalize = intersects[0].face.normal;
-          } else {
-              this.intersect = intersects[0];
-              this.normalize = intersects[1].face.normal;
-          }
-      }
-  }
+this.xLine = new THREE.Vector3(1, 0, 0);
+this.xLineAd = new THREE.Vector3(-1, 0, 0);
+this.yLine = new THREE.Vector3(0, 1, 0);
+this.yLineAd = new THREE.Vector3(0, -1, 0);
+this.zLine = new THREE.Vector3(0, 0, 1);
+this.zLineAd = new THREE.Vector3(0, 0, -1);
+*/
+
+export const listenerMove = (
+  pScene: THREE.Scene,
+  pCamera: THREE.PerspectiveCamera
+) => {
+  camera = pCamera
+  scene = pScene
+  document.body.addEventListener('mousedown', mouseDown)
+  document.body.addEventListener('mouseup', mouseUp)
 }
+const getIntersects = (event: MouseEvent) => {
+  if (camera === null || scene === null) return
+  const mouse = new THREE.Vector2()
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+  raycaster.setFromCamera(mouse, camera)
+  const intersects = raycaster.intersectObjects(scene.children)
+  if (!intersects.length) return
+  if (!intersects[0]) return
+  if ((intersects[0].object as any).cubeType === 'coverCube') {
+    intersect = intersects[1]
+    normalize = intersects[0]?.face?.normal
+  } else {
+    intersect = intersects[0]
+    normalize = intersects[1]?.face?.normal
+  }
+  return intersect
+}
+
+const mouseDown = (event: MouseEvent) => {
+  const intersect = getIntersects(event)
+  if (!intersect) return
+  if (isRotating) return
+  startPoint = intersect.point
+  document.body.addEventListener('mousemove', mouseMove)
+
+  // 拿到滑动向量
+  // const movePosition = { x: event.clientX, y: event.clientY }
+}
+const mouseMove = (event: MouseEvent) => {
+  // const intersect = getIntersects(event)
+  // movePoint = intersect.point
+  // console.log('movePoint',movePoint);
+}
+const mouseUp = (event: MouseEvent) => {
+  const intersect = getIntersects(event)
+  if (!intersect) return
+  const upPoint = intersect.point
+  document.body.removeEventListener('mousemove', mouseMove)
+
+  const sub = upPoint.sub(startPoint!)
+  getDirection(sub)
+}
+
+const getDirection = (sub: THREE.Vector3) => {
+  /* Rubik.js 第190行至第196行 */
+  /* 
+var xAngle = sub.angleTo(this.xLine);
+var xAngleAd = sub.angleTo(this.xLineAd);
+var yAngle = sub.angleTo(this.yLine);
+var yAngleAd = sub.angleTo(this.yLineAd);
+var zAngle = sub.angleTo(this.zLine);
+var zAngleAd = sub.angleTo(this.zLineAd);
+var minAngle = Math.min.apply(null, [xAngle, xAngleAd, yAngle, yAngleAd, zAngle, zAngleAd]);//最小夹角
+
 
 */
+
+  const directions = {
+    xLine: new THREE.Vector3(1, 0, 0),
+    xLineAd: new THREE.Vector3(-1, 0, 0),
+    yLine: new THREE.Vector3(0, 1, 0),
+    yLineAd: new THREE.Vector3(0, -1, 0),
+    zLine: new THREE.Vector3(0, 0, 1),
+    zLineAd: new THREE.Vector3(0, 0, -1),
+  }
+  const minAngle = Math.min(
+    ...Object.keys(directions).map((key) =>
+      sub.angleTo(directions[key as keyof typeof directions])
+    )
+  )
+  console.log('minAngle', minAngle)
+}

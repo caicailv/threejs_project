@@ -9,6 +9,9 @@ const scene = new THREE.Scene()
 const renderer = new THREE.WebGL1Renderer({
   antialias: true,
 })
+export const render = () => {
+  renderer.render(scene, camera)
+}
 const getCamer = () => {
   return new THREE.PerspectiveCamera(
     50,
@@ -19,18 +22,7 @@ const getCamer = () => {
 }
 let camera = getCamer()
 
-// 创建坐标系
-const axesHelper = new THREE.AxesHelper(2000)
-scene.add(axesHelper)
 const cube = createCube(scene)
-
-// const controls = new OrbitControls(camera, renderer.domElement)
-// // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
-// controls.addEventListener('change', () => {
-//   // renderer.render(scene, camera) //执行渲染操作
-//   render()
-// }) //监听鼠标、键盘事件
-
 const init = () => {
   document.body.innerHTML = ''
   camera.position.set(500, 500, 500) // 设置摄像机位置
@@ -41,7 +33,7 @@ const init = () => {
 
   document.body.innerHTML = '<div id="app"></div>'
   document.body.appendChild(renderer.domElement)
-  listenerMove(camera)
+  listenerMove(scene, camera)
 }
 
 const animate = () => {
@@ -56,17 +48,16 @@ const animate = () => {
     // }
   })
 }
+// 镜头
+// const controls = new OrbitControls(camera, renderer.domElement)
+// // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
+// controls.addEventListener('change', render)
 
+// 创建坐标系
+// const axesHelper = new THREE.AxesHelper(2000)
+// scene.add(axesHelper)
+//魔方
 
-export const render = () => {
-  renderer.render(scene, camera)
-}
-/* 
-
-
-
-
-*/
 init()
 window.addEventListener('resize', () => {
   console.log('resize')
